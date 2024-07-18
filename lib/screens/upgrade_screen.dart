@@ -1,142 +1,137 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:note_app/models/note.dart';
-import 'package:note_app/providers/savenote_provider.dart';
+import 'package:note_app/providers/image_provider.dart';
+import 'package:note_app/providers/link_provider.dart';
+import 'package:note_app/widgets/bottom_navigation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class UpgradeScreen extends ConsumerWidget {
   const UpgradeScreen({super.key, required this.note});
-
   final Note note;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notes = ref.watch(saveProvider);
+    final formKey = GlobalKey<FormState>();
+    final List<TextEditingController> textList = [];
+    final titleController = TextEditingController(text: note.title);
+    final contentController = TextEditingController(text: note.content);
+
+    void onSavePressed() {
+      if (formKey.currentState!.validate()) {
+        List<String> additionalContents =
+            textList.map((controller) => controller.text).toList();
+
+        Navigator.pop(context, {
+          'title': titleController.text,
+          'content': contentController.text,
+          'additionalContents': additionalContents,
+          'link': ref.watch(noteProvider)?.link,
+          'image': ref.watch(imageProvider)?.path,
+        });
+
+        // Reset providers if needed
+        ref.read(noteProvider.notifier).resetNote();
+        ref.read(imageProvider.notifier).resetImage();
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 70,
-        title: const Padding(
-          padding: EdgeInsets.fromLTRB(21, 0, 0, 0),
-          child: Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Note.d",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    "Enjoy note taking with friends",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              Spacer(),
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundImage: AssetImage("assets/images/avt.png"),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        title: Row(
+          children: [
+            const Text(
+              'Back',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+            const Spacer(),
+            IconButton(
+              onPressed: () {},
+              icon: Image.asset('assets/images/picture_icon.png'),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: Image.asset('assets/images/file_icon.png'),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: Image.asset('assets/images/font_icon.png'),
+            ),
+          ],
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(21, 24, 21, 0),
-        child: MasonryGridView.builder(
-          itemCount: notes.length + 1,
-          gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-          ),
-          mainAxisSpacing: 20,
-          crossAxisSpacing: 16,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return Container(
-                height: 171,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(8),
-                  ),
-                  border: Border.all(
-                    color: const Color(0xffB9E6FE),
-                    width: 1,
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.add_circle_outline),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(21, 24, 21, 0),
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: TextFormField(
+                    style: const TextStyle(
+                        fontSize: 30, fontWeight: FontWeight.w500),
+                    controller: titleController,
+                    decoration: const InputDecoration(
+                      hintText: 'Title',
+                      border: InputBorder.none,
                     ),
-                    const Text("New Note"),
-                  ],
-                ),
-              );
-            }
-            final note = notes[index - 1];
-            return GestureDetector(
-              onTap: () {},
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(8),
-                  ),
-                  border: Border.all(
-                    color: const Color(0xffE4E7EC),
-                    width: 1,
+                    textInputAction: TextInputAction.done,
+                    maxLines: null,
+                    minLines: 1,
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        notes[index].title,
-                        style: const TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.w500),
-                      ),
-                      Text(notes[index].content),
-                      if (notes[index].additionalContents != null)
-                        ...notes[index]
-                            .additionalContents!
-                            .map((item) => Text(item)),
-                      if (note.link != null)
-                        Text(
-                          notes[index].link.toString(),
+                TextFormField(
+                  controller: contentController,
+                  decoration: const InputDecoration(
+                    hintText: 'Content',
+                    border: InputBorder.none,
+                  ),
+                  textInputAction: TextInputAction.done,
+                  maxLines: null,
+                  minLines: 1,
+                ),
+                note.link != null
+                    ? InkWell(
+                        onTap: () {
+                          ref
+                              .read(noteProvider.notifier)
+                              .openAppBrowserView(note.link!);
+                        },
+                        child: Text(
+                          note.link!,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                      Container(
-                        height: 8,
-                      ),
-                      if (notes[index].image != null)
-                        Image.file(File(note.image!)),
-                      Container(
-                        height: 8,
-                      ),
-                      Text(notes[index].time),
-                    ],
-                  ),
+                      )
+                    : Container(),
+                Container(
+                  height: 24,
                 ),
-              ),
-            );
-          },
+                note.image != null
+                    ? InkWell(
+                        onTap: () {
+                          ref.read(imageProvider.notifier).getImageGallery();
+                        },
+                        child: Image.file(
+                          File(note.image.toString()),
+                          height: 200,
+                          width: double.infinity,
+                        ),
+                      )
+                    : Container(),
+                Container(
+                  height: 24,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
+      bottomNavigationBar: BottomNavigation(onSave: onSavePressed),
     );
   }
 }

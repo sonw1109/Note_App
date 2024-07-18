@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:note_app/models/note.dart';
 import 'package:note_app/providers/image_provider.dart';
+
 import 'package:note_app/providers/link_provider.dart';
-import 'package:note_app/providers/notes.dart';
 import 'package:note_app/widgets/add_icon.dart';
+
 import 'package:note_app/widgets/bottom_navigation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ContentScreen extends ConsumerStatefulWidget {
-  final List<Note> notes; // Thêm tham số notes
-
-  const ContentScreen({super.key, required this.notes});
+  const ContentScreen({super.key});
 
   @override
   ConsumerState<ContentScreen> createState() => _ContentScreenState();

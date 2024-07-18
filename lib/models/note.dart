@@ -34,20 +34,23 @@ class Note {
     );
   }
 
-  // Copy method for immutability
-  Note copyWith({
-    String? title,
-    String? content,
-    List<String>? additionalContents,
-    String? link,
-    String? imagePath,
-  }) {
-    return Note(
-      title: title ?? this.title,
-      content: content ?? this.content,
-      additionalContents: additionalContents ?? this.additionalContents,
-      link: link ?? this.link,
-      image: image ?? this.image,
-    );
-  }
+  factory Note.fromMap(Map<String, dynamic> map) => new Note(
+        idNote: map["id"],
+        title: map["title"],
+        content: map["content"],
+        additionalContents: map["additionalContents"]?.split(','),
+        link: map["link"],
+        image: map["image"],
+        time: map["time"],
+      );
+
+  Map<String, dynamic> toMap() => {
+        "id": idNote,
+        "title": title,
+        "content": content,
+        "additionalContents": additionalContents?.join(','),
+        "link": link,
+        "image": image,
+        "time": time,
+      };
 }

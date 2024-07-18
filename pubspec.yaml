@@ -41,6 +41,8 @@ dependencies:
   intl: ^0.19.0
   image_picker: ^1.1.2
   url_launcher: ^6.3.0
+  flutter_hooks: ^0.20.5
+  sqflite: ^2.3.3+1
   
 dev_dependencies:
   flutter_test:
