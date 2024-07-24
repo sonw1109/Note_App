@@ -4,7 +4,7 @@ import 'package:path/path.dart';
 
 class DatabaseService {
   static Database? _db;
-  static final DatabaseService instance = DatabaseService._constructor();
+  static final DatabaseService instance = DatabaseService._init();
 
   final String _notesTableName = "notes";
   final String _notesIdColumnName = "id";
@@ -15,7 +15,7 @@ class DatabaseService {
   final String _notesLinkColumnName = "link";
   final String _notesImageColumnName = "image";
 
-  DatabaseService._constructor();
+  DatabaseService._init();
 
   Future<Database> get database async {
     if (_db != null) return _db!;

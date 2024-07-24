@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'dart:math';
 
 class Note {
   Note({
@@ -9,9 +10,10 @@ class Note {
     this.link,
     String? time,
     this.additionalContents,
-  }) : time = time ?? DateFormat('yyyy-MM-dd').format(DateTime.now());
+  })  : time = time ?? DateFormat('dd/MM/yyyy').format(DateTime.now()),
+        idNote = idNote ?? Random().nextInt(10000);
 
-  int? idNote;
+  int idNote;
   final String title;
   final String content;
   String? image;

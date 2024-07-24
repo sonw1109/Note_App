@@ -9,21 +9,22 @@ class SavenoteNotifier extends StateNotifier<List<Note>> {
 
   void saveNote(Note note) {
     state = [...state, note];
+    // _databaseService.insertNote(note.toMap());
   }
 
-  void deleteNote(Note note) {
-    state = state.where((n) => n.idNote != note.idNote).toList();
+  void deleteDataFromDB(int idNote) {
+    state = state.where((note) => note.idNote != idNote).toList();
+    _databaseService.deleteNote(idNote);
   }
 
-  void updateNote(Note note) {
-    state = [
-      for (final n in state)
-        if (n.idNote == note.idNote) note else n
-    ];
+  void updateDataFromDB(Note updateNote) {
+    state = state
+        .map((note) => note.idNote == updateNote.idNote ? updateNote : note)
+        .toList();
+    _databaseService.updateNote(updateNote.toMap());
   }
 
   Future<void> getDataFromTable() async {
-    // TODO: result = GET dwx lieeuj twf table
     final List<Note> result = await _databaseService.getNote();
     state = result;
   }

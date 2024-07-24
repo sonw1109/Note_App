@@ -2,9 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:note_app/models/note.dart';
+
 import 'package:note_app/providers/image_provider.dart';
 import 'package:note_app/providers/link_provider.dart';
+
+import 'package:note_app/providers/savenote_provider.dart';
 import 'package:note_app/widgets/bottom_navigation.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class UpgradeScreen extends ConsumerWidget {
@@ -23,17 +27,18 @@ class UpgradeScreen extends ConsumerWidget {
         List<String> additionalContents =
             textList.map((controller) => controller.text).toList();
 
-        Navigator.pop(context, {
-          'title': titleController.text,
-          'content': contentController.text,
-          'additionalContents': additionalContents,
-          'link': ref.watch(noteProvider)?.link,
-          'image': ref.watch(imageProvider)?.path,
-        });
+        final updatedNote = Note(
+          idNote: note.idNote,
+          title: titleController.text,
+          content: contentController.text,
+          additionalContents: additionalContents,
+          link: ref.watch(noteProvider)?.link,
+          image: ref.watch(imageProviderForUpgradeScreen)?.path,
+        );
 
-        // Reset providers if needed
-        ref.read(noteProvider.notifier).resetNote();
-        ref.read(imageProvider.notifier).resetImage();
+        ref.read(saveProvider.notifier).updateDataFromDB(updatedNote);
+
+        Navigator.pop(context);
       }
     }
 
@@ -47,7 +52,11 @@ class UpgradeScreen extends ConsumerWidget {
             ),
             const Spacer(),
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                ref
+                    .read(imageProviderForUpgradeScreen.notifier)
+                    .getImageGallery();
+              },
               icon: Image.asset('assets/images/picture_icon.png'),
             ),
             IconButton(
@@ -114,11 +123,49 @@ class UpgradeScreen extends ConsumerWidget {
                 note.image != null
                     ? InkWell(
                         onTap: () {
-                          ref.read(imageProvider.notifier).getImageGallery();
+                          ref
+                              .read(imageProviderForUpgradeScreen.notifier)
+                              .getImageGallery();
+                        },
+// Xóa ảnh
+                        onLongPress: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return SizedBox(
+                                height: 120,
+                                child: Column(
+                                  children: [
+                                    ListTile(
+                                      leading: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      title: const Text('Delete Image'),
+                                      onTap: () {
+                                        ref
+                                            .read(imageProviderForUpgradeScreen
+                                                .notifier)
+                                            .resetImage();
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    ListTile(
+                                      leading: const Icon(Icons.cancel),
+                                      title: const Text('Cancle'),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                      },
+                                    )
+                                  ],
+                                ),
+                              );
+                            },
+                          );
                         },
                         child: Image.file(
-                          File(note.image.toString()),
-                          height: 200,
+                          File(note.image!),
+                          height: 500,
                           width: double.infinity,
                         ),
                       )

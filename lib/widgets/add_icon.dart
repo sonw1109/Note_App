@@ -90,7 +90,9 @@ class AddIcon extends ConsumerWidget {
           children: [
             IconButton(
               onPressed: () {
-                ref.read(imageProvider.notifier).getImageGallery();
+                ref
+                    .read(imageProviderForContentScreen.notifier)
+                    .getImageGallery();
               },
               icon: Image.asset('assets/images/add_icon.png'),
             ),

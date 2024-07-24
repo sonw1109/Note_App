@@ -37,19 +37,18 @@ class _ContentScreenState extends ConsumerState<ContentScreen> {
         'content': _contentController.text,
         'additionalContents': additionalContents,
         'link': ref.watch(noteProvider)?.link,
-        'image': ref.watch(imageProvider)?.path,
+        'image': ref.watch(imageProviderForContentScreen)?.path,
       });
-
       // Reset providers if needed
       ref.read(noteProvider.notifier).resetNote();
-      ref.read(imageProvider.notifier).resetImage();
+      ref.read(imageProviderForContentScreen.notifier).resetImage();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final getNote = ref.watch(noteProvider);
-    final imageFile = ref.watch(imageProvider);
+    final imageFile = ref.watch(imageProviderForContentScreen);
 
     return Scaffold(
       appBar: AppBar(
@@ -159,7 +158,45 @@ class _ContentScreenState extends ConsumerState<ContentScreen> {
                 imageFile != null
                     ? InkWell(
                         onTap: () {
-                          ref.read(imageProvider.notifier).getImageGallery();
+                          ref
+                              .read(imageProviderForContentScreen.notifier)
+                              .getImageGallery();
+                        },
+// Xóa ảnh
+                        onLongPress: () {
+                          showModalBottomSheet(
+                              context: context,
+                              builder: (context) {
+                                return SizedBox(
+                                  height: 120,
+                                  child: Column(
+                                    children: [
+                                      ListTile(
+                                        leading: const Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                        ),
+                                        title: const Text('Delete Image'),
+                                        onTap: () {
+                                          ref
+                                              .read(
+                                                  imageProviderForContentScreen
+                                                      .notifier)
+                                              .resetImage();
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                      ListTile(
+                                        leading: const Icon(Icons.cancel),
+                                        title: const Text('Cancle'),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                        },
+                                      )
+                                    ],
+                                  ),
+                                );
+                              });
                         },
                         child: Image.file(
                           imageFile,

@@ -14,9 +14,9 @@ class ImagePickerNotifier extends StateNotifier<File?> {
 
     if (pickedFile != null) {
       state = File(pickedFile.path);
+      print(state);
     } else {
       state = null;
-      print("No Image Picked");
     }
   }
 
@@ -25,5 +25,17 @@ class ImagePickerNotifier extends StateNotifier<File?> {
   }
 }
 
-final imageProvider = StateNotifierProvider<ImagePickerNotifier, File?>(
-    (ref) => ImagePickerNotifier());
+// final imageProvider = StateNotifierProvider<ImagePickerNotifier, File?>(
+//     (ref) => ImagePickerNotifier());
+
+// Provider cho UpgradeScreen
+final imageProviderForNote =
+    StateNotifierProvider.family<ImagePickerNotifier, File?, int>(
+  (ref, noteId) => ImagePickerNotifier(),
+);
+
+// Provider cho ContentScreen
+final imageProviderForContentScreen =
+    StateNotifierProvider<ImagePickerNotifier, File?>(
+  (ref) => ImagePickerNotifier(),
+);
