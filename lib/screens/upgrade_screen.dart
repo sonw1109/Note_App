@@ -7,8 +7,9 @@ import 'package:note_app/providers/image_provider.dart';
 import 'package:note_app/providers/link_provider.dart';
 
 import 'package:note_app/providers/savenote_provider.dart';
-import 'package:note_app/widgets/bottom_navigation.dart';
+import 'package:note_app/widgets/add_icon.dart';
 
+import 'package:note_app/widgets/bottom_navigation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class UpgradeScreen extends ConsumerWidget {
@@ -26,18 +27,21 @@ class UpgradeScreen extends ConsumerWidget {
       if (formKey.currentState!.validate()) {
         List<String> additionalContents =
             textList.map((controller) => controller.text).toList();
+        final pathFromState = ref.read(imageProvider);
+        final linkFromState = ref.read(noteProvider);
 
         final updatedNote = Note(
           idNote: note.idNote,
           title: titleController.text,
           content: contentController.text,
           additionalContents: additionalContents,
-          link: ref.watch(noteProvider)?.link,
-          image: ref.watch(imageProviderForUpgradeScreen)?.path,
+          link: linkFromState == null ? note.link : linkFromState.link,
+          image: pathFromState == null ? note.image : pathFromState.path,
         );
 
         ref.read(saveProvider.notifier).updateDataFromDB(updatedNote);
-
+        ref.read(imageProvider.notifier).resetImage();
+        ref.read(noteProvider.notifier).resetNote();
         Navigator.pop(context);
       }
     }
@@ -53,9 +57,7 @@ class UpgradeScreen extends ConsumerWidget {
             const Spacer(),
             IconButton(
               onPressed: () {
-                ref
-                    .read(imageProviderForUpgradeScreen.notifier)
-                    .getImageGallery();
+                ref.read(imageProvider.notifier).getImageGallery();
               },
               icon: Image.asset('assets/images/picture_icon.png'),
             ),
@@ -110,6 +112,41 @@ class UpgradeScreen extends ConsumerWidget {
                               .read(noteProvider.notifier)
                               .openAppBrowserView(note.link!);
                         },
+// Delete Link
+                        onLongPress: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return SizedBox(
+                                height: 120,
+                                child: Column(
+                                  children: [
+                                    ListTile(
+                                      leading: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      title: const Text('Delete Link'),
+                                      onTap: () {
+                                        ref
+                                            .read(noteProvider.notifier)
+                                            .resetNote();
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    ListTile(
+                                      leading: const Icon(Icons.cancel),
+                                      title: const Text('Cancle'),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                      },
+                                    )
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
                         child: Text(
                           note.link!,
                           maxLines: 2,
@@ -123,11 +160,9 @@ class UpgradeScreen extends ConsumerWidget {
                 note.image != null
                     ? InkWell(
                         onTap: () {
-                          ref
-                              .read(imageProviderForUpgradeScreen.notifier)
-                              .getImageGallery();
+                          ref.read(imageProvider.notifier).getImageGallery();
                         },
-// Xóa ảnh
+// Delete Image
                         onLongPress: () {
                           showModalBottomSheet(
                             context: context,
@@ -144,8 +179,7 @@ class UpgradeScreen extends ConsumerWidget {
                                       title: const Text('Delete Image'),
                                       onTap: () {
                                         ref
-                                            .read(imageProviderForUpgradeScreen
-                                                .notifier)
+                                            .read(imageProvider.notifier)
                                             .resetImage();
                                         Navigator.pop(context);
                                       },
@@ -165,7 +199,7 @@ class UpgradeScreen extends ConsumerWidget {
                         },
                         child: Image.file(
                           File(note.image!),
-                          height: 500,
+                          height: 200,
                           width: double.infinity,
                         ),
                       )
@@ -173,6 +207,7 @@ class UpgradeScreen extends ConsumerWidget {
                 Container(
                   height: 24,
                 ),
+                AddIcon(),
               ],
             ),
           ),

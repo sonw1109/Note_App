@@ -5,6 +5,9 @@ import 'package:note_app/screens/content_screen.dart';
 import 'package:note_app/screens/home_page.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:note_app/screens/login_screen.dart';
+import 'package:note_app/screens/signup_screen.dart';
+import 'package:note_app/screens/welcome_screen.dart';
 
 void main() {
   runApp(

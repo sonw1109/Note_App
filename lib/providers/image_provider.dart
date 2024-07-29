@@ -20,22 +20,26 @@ class ImagePickerNotifier extends StateNotifier<File?> {
     }
   }
 
+  // clearState() {
+  //   state = null;
+  // }
+
   void resetImage() {
     state = null;
   }
 }
 
-// final imageProvider = StateNotifierProvider<ImagePickerNotifier, File?>(
-//     (ref) => ImagePickerNotifier());
+final imageProvider = StateNotifierProvider<ImagePickerNotifier, File?>(
+    (ref) => ImagePickerNotifier());
 
-// Provider cho UpgradeScreen
-final imageProviderForNote =
-    StateNotifierProvider.family<ImagePickerNotifier, File?, int>(
-  (ref, noteId) => ImagePickerNotifier(),
-);
+// // Provider cho UpgradeScreen
+// final imageProviderForUpgradeScreen =
+//     StateNotifierProvider.family<ImagePickerNotifier, File?, int>(
+//   (ref, idNote) => ImagePickerNotifier(),
+// );
 
-// Provider cho ContentScreen
-final imageProviderForContentScreen =
-    StateNotifierProvider<ImagePickerNotifier, File?>(
-  (ref) => ImagePickerNotifier(),
-);
+// // Provider cho ContentScreen
+// final imageProviderForContentScreen =
+//     StateNotifierProvider<ImagePickerNotifier, File?>(
+//   (ref) => ImagePickerNotifier(),
+// );
